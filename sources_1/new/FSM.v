@@ -86,13 +86,13 @@ module FSM(
                 load_time <= 0;
                 count <= 0;
                 count_done <= 0;
-                disp <= set_time;
+                disp <= 8'b0000_0000;
             end
             LOADED_TIME: begin
                 load_time <= 1;
                 count <= 0;
                 count_done <= 0;
-                disp <= curr_time;
+                disp <= set_time;
                 flash_count <= 0;
             end
             COUNTING: begin
