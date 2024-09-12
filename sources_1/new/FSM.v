@@ -32,28 +32,21 @@ module FSM(
     );
     
     parameter EMPTY = 5'b10001;
+    parameter EMPTY_DISPLAY = 8'b0000_0000;
     
+    //time variables 
     reg [7:0] set_time;
     reg [7:0] curr_time;
+   
+    //states
     reg [4:0] state;
-    
     parameter SET_TIME = 1'b0;
     parameter LOADED_TIME = 1'b1;
     parameter COUNTING = 2'b10;
     parameter PAUSE = 2'b11;
+   
     
-    wire slow_clk;
-    
-    slow_clk U0 (clk, slow_clk);
-    
-    wire btnr;
-    wire pause;
-    
-    Debounce U1 (BTNR, clk, btnr);
-    
-    assign LED[0] = btnr;
-    assign LED[1] = BTNL;
-    
+    //handling the states and switching between them
     always @ (posedge (btnr | BTNL | count_done) ) begin
         if (BTNL) begin
             state <= SET_TIME;
@@ -73,12 +66,12 @@ module FSM(
         end
     end
     
-    reg [7:0] disp = 8'b1111_1111;
+    //handling what happens between each state
+    reg [7:0] disp = EMPTY_DISPLAY;
     reg count;
     reg load_time;
     reg count_done;
     reg [10:0] flash_count;
-    
     always @ (posedge slow_clk) begin
         case (state)
             SET_TIME: begin
@@ -86,7 +79,7 @@ module FSM(
                 load_time <= 0;
                 count <= 0;
                 count_done <= 0;
-                disp <= 8'b0000_0000;
+                disp <= EMPTY_DISPLAY;
             end
             LOADED_TIME: begin
                 load_time <= 1;
@@ -123,9 +116,7 @@ module FSM(
         endcase
     end
     
-    wire slower_clk;
-    slower_clk U2 (clk, slower_clk);
-    
+    //handling the counting
     always @ (posedge slower_clk) begin
         if (count) begin
             curr_time <= curr_time - 1;
@@ -134,6 +125,13 @@ module FSM(
         end
     end
     
+    //modules and reguired wires
+    wire slow_clk;
+    slow_clk U0 (clk, slow_clk);
+    wire btnr;
+    Debounce U1 (BTNR, clk, btnr);
+    wire slower_clk;
+    slower_clk U2 (clk, slower_clk);
     Display_8Bit U3 (disp, clk, seg_out, an_out);
     
 endmodule
