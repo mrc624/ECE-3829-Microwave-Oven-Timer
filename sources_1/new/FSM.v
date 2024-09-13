@@ -25,7 +25,6 @@ module FSM(
     input BTNR,
     input BTNL,
     input [7:0] sw,
-    output [1:0] LED,
     output reg flash_led,
     output [6:0] seg_out,
     output [3:0] an_out
